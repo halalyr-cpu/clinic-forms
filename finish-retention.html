@@ -168,10 +168,10 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
   <section class="card" id="retCard">
     <div class="sec-head"><span class="num">3</span><h2 data-t="s3"></h2></div>
     <p class="subtle" data-t="retIntro"></p>
-    <div class="opts" role="radiogroup">
-      <label class="opt"><input type="radio" name="ret" id="retFixed" value="fixed"><span class="ot" data-t="r1t"></span><span class="od" data-t="r1d"></span><span class="tag ok" data-t="covered"></span></label>
-      <label class="opt"><input type="radio" name="ret" id="retClear" value="clear"><span class="ot" data-t="r2t"></span><span class="od" data-t="r2d"></span><span class="tag ok" data-t="covered"></span></label>
-      <label class="opt"><input type="radio" name="ret" id="retHawley" value="hawley"><span class="ot" data-t="r3t"></span><span class="od" data-t="r3d"></span><span class="tag priv" data-t="private"></span></label>
+    <div class="opts" role="group">
+      <label class="opt"><input type="checkbox" name="ret" id="retFixed" value="fixed"><span class="ot" data-t="r1t"></span><span class="od" data-t="r1d"></span><span class="tag ok" data-t="covered"></span></label>
+      <label class="opt"><input type="checkbox" name="ret" id="retClear" value="clear"><span class="ot" data-t="r2t"></span><span class="od" data-t="r2d"></span><span class="tag ok" data-t="covered"></span></label>
+      <label class="opt"><input type="checkbox" name="ret" id="retHawley" value="hawley"><span class="ot" data-t="r3t"></span><span class="od" data-t="r3d"></span><span class="tag priv" data-t="private"></span></label>
     </div>
   </section>
 
@@ -672,7 +672,7 @@ const T={
  minor:{he:'קטין/ה – חותם/ת הורה מלווה',en:'Minor – the accompanying parent signs'},
  gName:{he:'שם ההורה המלווה',en:'Accompanying parent name'},
  gRel:{he:'קרבה למטופל/ת',en:'Relationship to patient'},
- retIntro:{he:'להלן הבהרות לגבי החיובים דרך קופת חולים לאומית. אנא בחר/י את אמצעי הקיבוע:',en:'Below are clarifications about charges through Leumit. Please choose your retainer:'},
+ retIntro:{he:'להלן הבהרות לגבי החיובים דרך קופת חולים לאומית. אנא סמן/י את אמצעי הקיבוע שבחרת (אפשר לבחור יותר מאחד):',en:'Below are clarifications about charges through Leumit. Please mark the retainers you chose (you may choose more than one):'},
  r1t:{he:'קיבוע קבוע',en:'Fixed retainer'},
  r1d:{he:'החיוב מתבצע באמצעות הוראת הקבע שלכם, בהתאם לרמת הביטוח.',en:'Charged through your standing order, according to your insurance level.'},
  r2t:{he:'קיבוע נשלף שקוף (OmniVac)',en:'Clear removable retainer (OmniVac)'},
@@ -681,7 +681,7 @@ const T={
  r3d:{he:'במידה ותבחרו במכשיר זה, יש להסדיר את התשלום באופן פרטי מול המרפאה.',en:'If you choose this appliance, payment is arranged privately with the clinic.'},
  covered:{he:'מכוסה במסגרת לאומית',en:'Covered by Leumit'},
  private:{he:'אינה מכוסה על ידי לאומית',en:'Not covered by Leumit'},
- retChosen:{he:'אמצעי הקיבוע שנבחר',en:'Retainer chosen'},
+ retChosen:{he:'אמצעי הקיבוע שנבחרו',en:'Retainers chosen'},
  agree:{he:'קראתי והבנתי את כל האמור לעיל, ואני מסכים/ה לסיום הטיפול ולאמצעי הקיבוע שבחרתי.',en:'I have read and understood all of the above, and I agree to complete the treatment with the retainer I chose.'},
  sigP:{he:'חתימת המטופל/ת',en:'Patient signature'},
  sigG:{he:'חתימת ההורה המלווה',en:'Accompanying parent signature'},
@@ -806,7 +806,7 @@ function blocks(stamp){
   const row=(k,val)=>'<div class="d-kv"><span>'+k+'</span><b>'+esc(val||'—')+'</b></div>';
   const sig=(img,cap)=>'<div class="d-sig"><div class="box">'+(img?'<img src="'+img+'">':'')+'</div><div class="cap">'+cap+'</div></div>';
   const val=(x,cap)=>'<div class="d-sig"><div class="val">'+esc(x||'')+'</div><div class="cap">'+cap+'</div></div>';
-  const ret=RET[document.querySelector('input[name=ret]:checked').value];
+  const rets=[...document.querySelectorAll('input[name=ret]:checked')].map(i=>RET[i.value]);
   const signer=isMinor()?v('gName')+(v('gRel')?' ('+v('gRel')+')':''):v('pName');
   const out=[];
   out.push('<div class="d-head"><img src="'+LOGO+'"><div><h1>'+t('title')+'</h1><div class="en">'+t('subtitle')+'</div></div></div>');
@@ -815,7 +815,7 @@ function blocks(stamp){
   out.push('<div class="d-sec">'+t('s2')+'</div>');
   FINISH[LANG].forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
   out.push('<div class="d-sec">'+t('s3')+'</div>');
-  out.push('<div class="d-ret"><b>'+t('retChosen')+': '+t(ret[0])+'</b> — '+t(ret[1])+'</div>');
+  out.push('<div class="d-ret"><b>'+t('retChosen')+':</b>'+rets.map(r=>'<div>✓ <b>'+t(r[0])+'</b> — '+t(r[1])+'</div>').join('')+'</div>');
   out.push('<div class="d-sec">'+t('s4')+'</div>');
   WAIVER[LANG].forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
   out.push('<div class="d-sigs">'+val(fmtDate(stamp),t('date'))+val(signer,isMinor()?t('gName'):t('fullName'))+sig(pads.sigPatient.png(),isMinor()?t('sigG'):t('sigP'))+'</div>');

@@ -31,14 +31,18 @@
 .drive-ok{color:var(--ok)!important;font-weight:700}
 .drive-bad{color:var(--warn)!important;font-weight:700}
 html,body{background:var(--desk);color:var(--ink)}
-body{font-family:var(--font-ui);font-size:18px;line-height:1.55;direction:rtl;
+body{font-family:var(--font-ui);font-size:18px;line-height:1.55;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
 .wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 header.top{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 header.top img{width:150px;height:auto}
 header.top h1{margin:0;font-size:30px;font-weight:800;text-wrap:balance;line-height:1.15}
-header.top .en{color:var(--muted);font-size:16px;letter-spacing:.04em;direction:ltr;text-align:right}
-header.top .meta{margin-inline-start:auto;color:var(--muted);font-size:15px;text-align:left}
+header.top .en{color:var(--muted);font-size:16px;letter-spacing:.04em}
+.lang{display:flex;border:1.5px solid var(--teal);border-radius:999px;overflow:hidden}
+.lang button{font:inherit;font-weight:800;font-size:16px;border:0;background:var(--paper);color:var(--teal-deep);padding:8px 18px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--teal-deep);color:#fff}
+.lang button:focus-visible{outline:3px solid var(--teal);outline-offset:-3px}
+header.top .meta{margin-inline-start:auto;color:var(--muted);font-size:15px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 section.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
 .sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .sec-head .num{font-weight:800;color:var(--teal-deep);font-size:15px;background:var(--teal-wash);border-radius:999px;padding:2px 12px}
@@ -82,14 +86,14 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
 @media (prefers-reduced-motion:no-preference){.btn{transition:background .15s}}
 
 /* ---------- PDF pages (rendered off-screen) ---------- */
-#pdfStage{position:fixed;left:-20000px;top:0;direction:rtl}
+#pdfStage{position:fixed;left:-20000px;top:0}
 .pg{width:794px;height:1123px;background:#fff;color:#111;font-family:var(--font-doc);font-size:13.2px;line-height:1.6;padding:40px 52px 56px;position:relative;overflow:hidden}
 .pg .inner{display:flex;flex-direction:column;gap:9px}
 .pg .foot{position:absolute;bottom:20px;left:52px;right:52px;border-top:1px solid #bbb;padding-top:6px;font-size:10.5px;color:#555;display:flex;justify-content:space-between}
 .d-head{display:flex;align-items:center;gap:18px;border-bottom:2px solid #3f8e98;padding-bottom:10px;margin-bottom:4px}
 .d-head img{width:120px}
 .d-head h1{margin:0;font-size:24px}
-.d-head .en{font-size:15px;color:#333;direction:ltr;text-align:right;font-weight:bold}
+.d-head .en{font-size:15px;color:#333;font-weight:bold}
 .d-p{margin:0;text-align:justify}
 .d-b{font-weight:bold}
 .d-fill{border-bottom:1px solid #333;padding:0 6px;font-weight:bold}
@@ -107,80 +111,86 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
   <header class="top">
     <img src="data:image/png;base64,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" alt="Dr. Aretz">
     <div>
-      <h1>טופס הסכמה לטיפול אורתודנטי</h1>
-      <div class="en">Orthodontic Treatment</div>
+      <h1 data-t="title"></h1>
+      <div class="en" data-t="subtitle"></div>
     </div>
-    <div class="meta" id="todayLbl"></div>
+    <div class="meta">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="btnHe" aria-pressed="true">עברית</button>
+        <button type="button" id="btnEn" aria-pressed="false">English</button>
+      </div>
+      <span id="todayLbl"></span>
+    </div>
   </header>
 
   <section class="card">
-    <div class="sec-head"><span class="num">1</span><h2>פרטי המתרפא/ה</h2><span class="who">ממולא ע״י הצוות</span></div>
+    <div class="sec-head"><span class="num">1</span><h2 data-t="s1"></h2><span class="who" data-t="byStaff"></span></div>
     <div class="grid">
-      <label class="f">שם משפחה<input type="text" id="pLast" autocomplete="off"></label>
-      <label class="f">שם פרטי<input type="text" id="pFirst" autocomplete="off"></label>
-      <label class="f">שם האב<input type="text" id="pFather" autocomplete="off"></label>
-      <label class="f">ת.ז.<input type="tel" id="pId" inputmode="numeric" maxlength="9" autocomplete="off"></label>
+      <label class="f"><span data-t="last"></span><input type="text" id="pLast" autocomplete="off"></label>
+      <label class="f"><span data-t="first"></span><input type="text" id="pFirst" autocomplete="off"></label>
+      <label class="f"><span data-t="father"></span><input type="text" id="pFather" autocomplete="off"></label>
+      <label class="f"><span data-t="idnum"></span><input type="tel" id="pId" inputmode="numeric" maxlength="9" autocomplete="off"></label>
     </div>
     <div class="seg" role="radiogroup" aria-label="מי חותם">
-      <label><input type="radio" name="signer" id="sAdult" value="adult" checked>המתרפא/ה חותם/ת בעצמו/ה</label>
-      <label><input type="radio" name="signer" id="sMinor" value="minor">קטין/ה – חותם/ת הורה או אפוטרופוס</label>
+      <label><input type="radio" name="signer" id="sAdult" value="adult" checked><span data-t="adult"></span></label>
+      <label><input type="radio" name="signer" id="sMinor" value="minor"><span data-t="minor"></span></label>
     </div>
   </section>
 
   <section class="card">
-    <div class="sec-head"><span class="num">2</span><h2>הטיפול העיקרי</h2><span class="who">ממולא ע״י הצוות</span></div>
+    <div class="sec-head"><span class="num">2</span><h2 data-t="s2"></h2><span class="who" data-t="byStaff"></span></div>
     <div class="seg" role="radiogroup" aria-label="לסת">
-      <label><input type="radio" name="jaw" id="jUp" value="בלסת עליונה">לסת עליונה</label>
-      <label><input type="radio" name="jaw" id="jDown" value="בלסת תחתונה">לסת תחתונה</label>
-      <label><input type="radio" name="jaw" id="jBoth" value="בשתי הלסתות">שתי הלסתות</label>
+      <label><input type="radio" name="jaw" id="jUp" value="up"><span data-t="jUp"></span></label>
+      <label><input type="radio" name="jaw" id="jDown" value="down"><span data-t="jDown"></span></label>
+      <label><input type="radio" name="jaw" id="jBoth" value="both"><span data-t="jBoth"></span></label>
     </div>
     <div class="grid">
-      <label class="f">תאריך הצגת תוכנית הטיפול<input type="date" id="planDate"></label>
+      <label class="f"><span data-t="planDate"></span><input type="date" id="planDate"></label>
     </div>
-    <label class="f">פירוט הטיפול (מכשור, משך משוער)<textarea id="planText" placeholder="לדוגמה: קיבוע שקוף בשתי הלסתות, משך משוער כ-18 חודשים"></textarea></label>
+    <label class="f"><span data-t="planText"></span><textarea id="planText"></textarea></label>
   </section>
 
   <section class="card">
-    <div class="sec-head"><span class="num">3</span><h2>הסבר והסכמה</h2><span class="who">לקריאת המתרפא/ה</span></div>
+    <div class="sec-head"><span class="num">3</span><h2 data-t="s3"></h2><span class="who" data-t="forPatient"></span></div>
     <div class="consent" id="consentText"></div>
-    <label class="check"><input type="checkbox" id="agree"><span>קראתי והבנתי את כל האמור לעיל, ואני נותן/ת בזאת את הסכמתי לביצוע הטיפול העיקרי.</span></label>
+    <label class="check"><input type="checkbox" id="agree"><span data-t="agree"></span></label>
   </section>
 
   <section class="card">
-    <div class="sec-head"><span class="num">4</span><h2>חתימת המתרפא/ה</h2></div>
+    <div class="sec-head"><span class="num">4</span><h2 data-t="s4"></h2></div>
     <div id="guardianFields" class="grid" hidden>
-      <label class="f">שם ההורה / האפוטרופוס<input type="text" id="gName" autocomplete="off"></label>
-      <label class="f">ת.ז. ההורה / האפוטרופוס<input type="tel" id="gId" inputmode="numeric" maxlength="9" autocomplete="off"></label>
-      <label class="f">קרבה למתרפא/ה<input type="text" id="gRel" placeholder="אב / אם / אפוטרופוס" autocomplete="off"></label>
+      <label class="f"><span data-t="gName"></span><input type="text" id="gName" autocomplete="off"></label>
+      <label class="f"><span data-t="gId"></span><input type="tel" id="gId" inputmode="numeric" maxlength="9" autocomplete="off"></label>
+      <label class="f"><span data-t="gRel"></span><input type="text" id="gRel" autocomplete="off"></label>
     </div>
     <div class="row2">
       <div class="sig" id="sigPatientBox">
-        <div class="bar"><span id="sigPatientLbl">חתימת המתרפא/ה</span><button class="btn small" type="button" data-clear="sigPatient">ניקוי</button></div>
+        <div class="bar"><span id="sigPatientLbl"></span><button class="btn small" type="button" data-clear="sigPatient" data-t="clear"></button></div>
         <canvas id="sigPatient" aria-label="משטח חתימה"></canvas>
       </div>
       <div class="sig" id="sigGuardianBox" hidden>
-        <div class="bar"><span>חתימת ההורה / האפוטרופוס</span><button class="btn small" type="button" data-clear="sigGuardian">ניקוי</button></div>
+        <div class="bar"><span data-t="sigG"></span><button class="btn small" type="button" data-clear="sigGuardian" data-t="clear"></button></div>
         <canvas id="sigGuardian" aria-label="משטח חתימה"></canvas>
       </div>
     </div>
   </section>
 
   <section class="card">
-    <div class="sec-head"><span class="num">5</span><h2>הצהרת הרופא/ה</h2><span class="who">לרופא/ה</span></div>
+    <div class="sec-head"><span class="num">5</span><h2 data-t="s5"></h2><span class="who" data-t="forDoctor"></span></div>
     <p class="subtle" id="drDeclText"></p>
     <div class="seg" role="radiogroup" aria-label="הסבר דרך מתרגם">
-      <label><input type="radio" name="tr" id="trNo" value="no" checked>ללא מתרגם</label>
-      <label><input type="radio" name="tr" id="trYes" value="yes">ההסבר נמסר דרך מתרגם/ת או קרוב/ה</label>
+      <label><input type="radio" name="tr" id="trNo" value="no" checked><span data-t="trNo"></span></label>
+      <label><input type="radio" name="tr" id="trYes" value="yes"><span data-t="trYes"></span></label>
     </div>
     <div class="grid" id="trFields" hidden>
-      <label class="f">שם המתרגם/ת או הקרוב/ה<input type="text" id="trName" autocomplete="off"></label>
+      <label class="f"><span data-t="trName"></span><input type="text" id="trName" autocomplete="off"></label>
     </div>
     <div class="grid">
-      <label class="f">שם הרופא/ה<input type="text" id="drName" value="ד״ר לאורה ארץ הללי"></label>
-      <label class="f">מס׳ רישיון<input type="tel" id="drLic" class="doclic" value="2146386"></label>
+      <label class="f"><span data-t="drName"></span><input type="text" id="drName" value="ד״ר לאורה ארץ הללי"></label>
+      <label class="f"><span data-t="drLic"></span><input type="tel" id="drLic" class="doclic" value="2146386"></label>
     </div>
     <div class="sig" id="sigDoctorBox">
-      <div class="bar"><span>חתימת הרופא/ה</span><button class="btn small" type="button" data-clear="sigDoctor">ניקוי</button></div>
+      <div class="bar"><span data-t="sigD"></span><button class="btn small" type="button" data-clear="sigDoctor" data-t="clear"></button></div>
       <canvas id="sigDoctor" aria-label="משטח חתימה"></canvas>
     </div>
   </section>
@@ -208,7 +218,7 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
 </div>
 <div class="footer" id="footer">
   <span class="msg" id="msg"></span>
-  <button class="btn primary" type="button" id="finishBtn">סיום ושמירת PDF</button>
+  <button class="btn primary" type="button" id="finishBtn" data-t="finish"></button>
 </div>
 
 <div id="pdfStage" aria-hidden="true"></div>
@@ -639,8 +649,66 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 const LOGO = document.querySelector('header.top img').src;
 const $ = id => document.getElementById(id);
 
-const PURPOSE = 'מטרת הטיפול האורתודנטי היא להשיג שיפור בעמדת השיניים, היחסים הסגריים, התפקוד והאסתטיקה של השיניים והפנים.';
-const PARAS = [
+let LANG='he';
+const T={
+ title:{he:'טופס הסכמה לטיפול אורתודנטי',en:'Consent Form for Orthodontic Treatment'},
+ subtitle:{he:'Orthodontic Treatment',en:'טופס הסכמה לטיפול אורתודנטי'},
+ date:{he:'תאריך',en:'Date'},
+ s1:{he:'פרטי המתרפא/ה',en:'Patient details'},
+ s2:{he:'הטיפול העיקרי',en:'The main treatment'},
+ s3:{he:'הסבר והסכמה',en:'Explanation and consent'},
+ s4:{he:'חתימת המתרפא/ה',en:'Patient signature'},
+ s5:{he:'הצהרת הרופא/ה',en:"Doctor's declaration"},
+ byStaff:{he:'ממולא ע״י הצוות',en:'Filled in by staff'},
+ forPatient:{he:'לקריאת המתרפא/ה',en:'For the patient to read'},
+ forDoctor:{he:'לרופא/ה',en:'For the doctor'},
+ last:{he:'שם משפחה',en:'Last name'},
+ first:{he:'שם פרטי',en:'First name'},
+ father:{he:'שם האב',en:"Father's name"},
+ idnum:{he:'ת.ז.',en:'ID no.'},
+ adult:{he:'המתרפא/ה חותם/ת בעצמו/ה',en:'The patient signs personally'},
+ minor:{he:'קטין/ה – חותם/ת הורה או אפוטרופוס',en:'Minor – a parent or guardian signs'},
+ jUp:{he:'לסת עליונה',en:'Upper jaw'},
+ jDown:{he:'לסת תחתונה',en:'Lower jaw'},
+ jBoth:{he:'שתי הלסתות',en:'Both jaws'},
+ planDate:{he:'תאריך הצגת תוכנית הטיפול',en:'Date the treatment plan was presented'},
+ planText:{he:'פירוט הטיפול (מכשור, משך משוער)',en:'Treatment details (appliances, estimated duration)'},
+ planPh:{he:'לדוגמה: קיבוע שקוף בשתי הלסתות, משך משוער כ-18 חודשים',en:'e.g. clear braces on both jaws, about 18 months'},
+ agree:{he:'קראתי והבנתי את כל האמור לעיל, ואני נותן/ת בזאת את הסכמתי לביצוע הטיפול העיקרי.',en:'I have read and understood all of the above, and I hereby give my consent to the Main Treatment.'},
+ gName:{he:'שם ההורה / האפוטרופוס',en:'Parent / guardian name'},
+ gId:{he:'ת.ז. ההורה / האפוטרופוס',en:'Parent / guardian ID no.'},
+ gRel:{he:'קרבה למתרפא/ה',en:'Relationship to patient'},
+ gRelPh:{he:'אב / אם / אפוטרופוס',en:'Father / mother / guardian'},
+ sigP:{he:'חתימת המתרפא/ה',en:'Patient signature'},
+ sigPopt:{he:'חתימת המתרפא/ה (רשות)',en:'Patient signature (optional)'},
+ sigG:{he:'חתימת ההורה / האפוטרופוס',en:'Parent / guardian signature'},
+ sigD:{he:'חתימת הרופא/ה',en:"Doctor's signature"},
+ clear:{he:'ניקוי',en:'Clear'},
+ trNo:{he:'ללא מתרגם',en:'No interpreter'},
+ trYes:{he:'ההסבר נמסר דרך מתרגם/ת או קרוב/ה',en:'Explained through an interpreter or relative'},
+ trName:{he:'שם המתרגם/ת או הקרוב/ה',en:'Name of interpreter or relative'},
+ trLine:{he:'שם המתרגם/קרוב למתרפא/ה',en:'Interpreter / relative of the patient'},
+ trNone:{he:'לא נדרש',en:'Not required'},
+ drName:{he:'שם הרופא/ה',en:"Doctor's name"},
+ drLic:{he:'מס׳ רישיון',en:'License no.'},
+ finish:{he:'סיום ושמירת PDF',en:'Finish and save PDF'},
+ missing:{he:'חסר: ',en:'Missing: '},
+ making:{he:'מפיק PDF…',en:'Creating PDF…'},
+ vId:{he:'ת.ז. תקינה של המתרפא/ה',en:"valid patient ID no."},
+ vGId:{he:'ת.ז. תקינה של ההורה/האפוטרופוס',en:'valid parent / guardian ID no.'},
+ vJaw:{he:'בחירת לסת',en:'choice of jaw'},
+ vAgree:{he:'אישור קריאה והסכמה',en:'confirmation of reading and consent'},
+ patientName:{he:'שם המתרפא/ה',en:'Patient name'},
+ page:{he:'עמוד',en:'Page'}, of:{he:'מתוך',en:'of'},
+ eSigned:{he:'הטופס נחתם בחתימה אלקטרונית על גבי טאבלט במרפאה בתאריך ',en:'This form was signed electronically on a tablet at the clinic on '}
+};
+const t=k=>T[k][LANG];
+const JAW={up:{he:'בלסת עליונה',en:'of the upper jaw'},down:{he:'בלסת תחתונה',en:'of the lower jaw'},both:{he:'בשתי הלסתות',en:'of both jaws'}};
+const DR_DEFAULT={he:'ד״ר לאורה ארץ הללי',en:'Dr. Laura Aretz Halaly'};
+const PURPOSE={
+ he:'מטרת הטיפול האורתודנטי היא להשיג שיפור בעמדת השיניים, היחסים הסגריים, התפקוד והאסתטיקה של השיניים והפנים.',
+ en:'The purpose of orthodontic treatment is to improve the position of the teeth, the bite, function, and the appearance of the teeth and face.'};
+const PARAS={he:[
  'הוסברו לי מטרות הטיפול, משך הטיפול המשוער, דרכי הטיפול והמכשור הכרוך בו. הוצגו בפני דרכי הטיפול החלופיות האפשריות בנסיבות המקרה. דרכי הטיפול החלופיות נשקלו על ידי טרם הבחירה בטיפול העיקרי.',
  'הוסברו לי תופעות הלוואי של הטיפול העיקרי, לרבות: תחושת לחץ, רגישות וניידות חולפת של השיניים, אי נוחות עד כדי פציעה של הרקמות בפה ונפיחות של החניכיים.',
  'כמו כן הוסברו לי הסיכונים והסיבוכים האפשריים של הטיפול העיקרי, לרבות: ספיגה מסוימת של שורשי השיניים, אבדן חיות של שן, פגיעה במערכת התאחיזה של השיניים ורגישות במפרקי הלסת, שמשמעותם הוסברה לי.',
@@ -651,18 +719,46 @@ const PARAS = [
  'הוסבר לי שלמרות הפעולות לשימור עמדת השיניים, קיבוע ו/או פלטה בסוף הטיפול, עלולה להיות נסיגה בעמדת השיניים.',
  'הוסבר לי כי במידה ולא ארכיב את הפלטה בהתאם להוראות שקיבלתי, עלולה להיות נסיגה בעמדת השיניים. כמו כן, הוסבר לי כי הקיבוע עלול להתנתק ו/או להישבר. ידוע לי שבמקרה זה עליי לפנות בהקדם למרפאה. כמו כן, הוסבר לי כי במידה שלאחר הטיפול יחולו שינויים בלתי צפויים בלסתות או בשיניים, עלול להיגרם ליקוי סגר חדש.',
  'כמו כן הודגשה לי, ואני מבין/ה, החשיבות בהגעה סדירה לתורים שנקבעים מבעוד מועד. ידוע לי שבמידה ולא אופיע לתורים או אבטל תורים בהתראה של פחות מ-24 שעות לפני מועד התור, יהיה עליי לשאת בעלויות בהתאם למדיניות המרפאה, והדבר אף עלול להוביל להפסקת הטיפול עוד בטרם סיומו.'
-];
-const CONSENT_LINE = 'אני נותן/ת בזאת את הסכמתי לביצוע הטיפול העיקרי.';
-const DR_DECL = 'אני מאשר/ת כי הסברתי בעל פה למתרפא/ה / לאפוטרופוס של המתרפא/ה / למתרגם לשפתו/ה את כל האמור לעיל בפירוט הדרוש, וכי הוא/היא חתם/ה על ההסכמה בפני, לאחר ששוכנעתי כי הבין/ה את הסבריי במלואם.';
+],en:[
+ 'The goals of the treatment, its estimated duration, the treatment methods and the appliances involved have been explained to me. The alternative treatment options available in my case have been presented to me, and I considered them before choosing the Main Treatment.',
+ 'The side effects of the Main Treatment have been explained to me, including: a feeling of pressure, sensitivity and temporary looseness of the teeth, and discomfort, which may extend to injury of the soft tissues in the mouth and swelling of the gums.',
+ 'The possible risks and complications of the Main Treatment have also been explained to me, including: some shortening (resorption) of the tooth roots, loss of vitality of a tooth, damage to the tissues supporting the teeth, and sensitivity in the jaw joints. Their meaning has been explained to me.',
+ 'I understand the importance of giving accurate information about my health and of following all instructions I receive from the staff and/or the treating dentist, including: keeping strict oral hygiene during treatment to prevent stains on the teeth and/or tooth decay, using the orthodontic appliances correctly, and receiving any preventive and restorative treatment I may need.',
+ 'In addition to the regular visits to the orthodontist, I must have a check-up with my dentist at least once every six months, or as instructed by the treating dentist, and regular care by a dental hygienist.',
+ 'It has been explained to me that the length of treatment and achieving the hoped-for result depend, among other things, on the initial bite problem, on changes caused by growth that may create a new bite problem unrelated to the treatment given, and on my cooperation. These factors may affect the result, lengthen the treatment, and/or lead to the treatment being stopped before it is completed.',
+ 'It has been explained to me, and I understand, that during the Main Treatment it may become necessary to change all or part of the treatment plan, including additional treatments that cannot be fully or certainly foreseen now, and including a change of orthodontic appliances.',
+ 'It has been explained to me that despite the measures taken to hold the teeth in position at the end of treatment (a fixed retainer and/or a removable retainer), the teeth may move back (relapse).',
+ 'It has been explained to me that if I do not wear the removable retainer as instructed, the teeth may move back. It has also been explained to me that the fixed retainer may come loose and/or break, and that in that case I must contact the clinic promptly. It has further been explained to me that if unexpected changes occur in the jaws or teeth after treatment, a new bite problem may develop.',
+ 'The importance of attending scheduled appointments regularly has been emphasized to me, and I understand it. I am aware that if I miss appointments, or cancel them less than 24 hours in advance, I will bear the costs according to the clinic\'s policy, and that this may even lead to the treatment being stopped before it is completed.'
+]};
+const CONSENT_LINE={he:'אני נותן/ת בזאת את הסכמתי לביצוע הטיפול העיקרי.',en:'I hereby give my consent to the Main Treatment.'};
+const DR_DECL={
+ he:'אני מאשר/ת כי הסברתי בעל פה למתרפא/ה / לאפוטרופוס של המתרפא/ה / למתרגם לשפתו/ה את כל האמור לעיל בפירוט הדרוש, וכי הוא/היא חתם/ה על ההסכמה בפני, לאחר ששוכנעתי כי הבין/ה את הסבריי במלואם.',
+ en:"I confirm that I explained all of the above orally, in the necessary detail, to the patient / the patient's guardian / an interpreter into the patient's language, and that he/she signed this consent in my presence after I was satisfied that he/she fully understood my explanations."};
 
-$('consentText').innerHTML = '<p><b>' + PURPOSE + '</b></p>' + PARAS.map(p => '<p>' + p + '</p>').join('');
-$('drDeclText').textContent = DR_DECL;
+function applyLang(){
+  const he=LANG==='he';
+  document.documentElement.lang=LANG; document.documentElement.dir=he?'rtl':'ltr'; document.body.dir=he?'rtl':'ltr';
+  document.querySelectorAll('[data-t]').forEach(e=>{e.textContent=t(e.dataset.t);});
+  $('planText').placeholder=t('planPh'); $('gRel').placeholder=t('gRelPh');
+  $('consentText').innerHTML='<p><b>'+PURPOSE[LANG]+'</b></p>'+PARAS[LANG].map(p=>'<p>'+p+'</p>').join('');
+  $('drDeclText').textContent=DR_DECL[LANG];
+  const dn=$('drName'); if(dn.value===DR_DEFAULT.he||dn.value===DR_DEFAULT.en) dn.value=DR_DEFAULT[LANG];
+  $('btnHe').setAttribute('aria-pressed',he); $('btnEn').setAttribute('aria-pressed',!he);
+  document.title=t('title');
+  $('todayLbl').textContent=t('date')+': '+fmtDate(new Date());
+  try{ syncSigner(); }catch(e){}
+  setMsg('');
+}
+$('btnHe').addEventListener('click',()=>{LANG='he';applyLang();});
+$('btnEn').addEventListener('click',()=>{LANG='en';applyLang();});
+
 
 function pad(n){return String(n).padStart(2,'0')}
 function fmtDate(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()}
 function isoToday(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
 function isoToHe(v){if(!v)return '';const [y,m,d]=v.split('-');return d+'/'+m+'/'+y}
-$('todayLbl').textContent = 'תאריך: ' + fmtDate(new Date());
+applyLang();
 
 /* ---------- signature pads ---------- */
 const pads = {};
@@ -707,7 +803,7 @@ function isMinor(){return $('sMinor').checked}
 function syncSigner(){
   const m=isMinor();
   $('guardianFields').hidden=!m; $('sigGuardianBox').hidden=!m;
-  $('sigPatientLbl').textContent = m ? 'חתימת המתרפא/ה (רשות)' : 'חתימת המתרפא/ה';
+  $('sigPatientLbl').textContent = m ? t('sigPopt') : t('sigP');
   requestAnimationFrame(()=>pads.sigGuardian.size());
 }
 function syncTr(){ $('trFields').hidden=!$('trYes').checked; }
@@ -722,20 +818,20 @@ function validate(){
   document.querySelectorAll('.invalid').forEach(e=>e.classList.remove('invalid'));
   const bad=[]; const need=(id,ok,name)=>{ if(!ok){ $(id).classList.add('invalid'); bad.push({id,name}); } };
   const v=id=>$(id).value.trim();
-  need('pLast', v('pLast'), 'שם משפחה');
-  need('pFirst', v('pFirst'), 'שם פרטי');
-  need('pId', validIL(v('pId')), 'ת.ז. תקינה של המתרפא/ה');
-  if(!document.querySelector('input[name=jaw]:checked')){ bad.push({id:'jUp',name:'בחירת לסת'}); }
-  need('planDate', v('planDate'), 'תאריך תוכנית הטיפול');
-  if(!$('agree').checked){ bad.push({id:'agree',name:'אישור קריאה והסכמה'}); }
+  need('pLast', v('pLast'), t('last'));
+  need('pFirst', v('pFirst'), t('first'));
+  need('pId', validIL(v('pId')), t('vId'));
+  if(!document.querySelector('input[name=jaw]:checked')){ bad.push({id:'jUp',name:t('vJaw')}); }
+  need('planDate', v('planDate'), t('planDate'));
+  if(!$('agree').checked){ bad.push({id:'agree',name:t('vAgree')}); }
   if(isMinor()){
-    need('gName', v('gName'), 'שם ההורה/האפוטרופוס');
-    need('gId', validIL(v('gId')), 'ת.ז. תקינה של ההורה/האפוטרופוס');
-    if(pads.sigGuardian.empty){ $('sigGuardianBox').classList.add('invalid'); bad.push({id:'sigGuardian',name:'חתימת ההורה/האפוטרופוס'}); }
-  } else if(pads.sigPatient.empty){ $('sigPatientBox').classList.add('invalid'); bad.push({id:'sigPatient',name:'חתימת המתרפא/ה'}); }
-  if($('trYes').checked) need('trName', v('trName'), 'שם המתרגם/ת');
-  need('drName', v('drName'), 'שם הרופא/ה');
-  if(pads.sigDoctor.empty){ $('sigDoctorBox').classList.add('invalid'); bad.push({id:'sigDoctor',name:'חתימת הרופא/ה'}); }
+    need('gName', v('gName'), t('gName'));
+    need('gId', validIL(v('gId')), t('vGId'));
+    if(pads.sigGuardian.empty){ $('sigGuardianBox').classList.add('invalid'); bad.push({id:'sigGuardian',name:t('sigG')}); }
+  } else if(pads.sigPatient.empty){ $('sigPatientBox').classList.add('invalid'); bad.push({id:'sigPatient',name:t('sigP')}); }
+  if($('trYes').checked) need('trName', v('trName'), t('trName'));
+  need('drName', v('drName'), t('drName'));
+  if(pads.sigDoctor.empty){ $('sigDoctorBox').classList.add('invalid'); bad.push({id:'sigDoctor',name:t('sigD')}); }
   return bad;
 }
 function setMsg(t,cls){const m=$('msg');m.textContent=t;m.className='msg'+(cls?' '+cls:'');}
@@ -745,7 +841,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 function collect(){
   const v=id=>$(id).value.trim();
   return { last:v('pLast'), first:v('pFirst'), father:v('pFather'), id:v('pId'),
-    jaw:document.querySelector('input[name=jaw]:checked').value, planDate:isoToHe(v('planDate')), planText:v('planText'),
+    jaw:JAW[document.querySelector('input[name=jaw]:checked').value][LANG], planDate:isoToHe(v('planDate')), planText:v('planText'),
     minor:isMinor(), gName:v('gName'), gId:v('gId'), gRel:v('gRel'),
     tr:$('trYes').checked, trName:v('trName'), drName:v('drName'), drLic:v('drLic'),
     sigP:pads.sigPatient.png(), sigG:pads.sigGuardian.png(), sigD:pads.sigDoctor.png(),
@@ -756,34 +852,35 @@ function blocks(d){
   const f = s => '<span class="d-fill">'+esc(s||'—')+'</span>';
   const sig = (img,cap)=>'<div class="d-sig"><div class="box">'+(img?'<img src="'+img+'">':'')+'</div><div class="cap">'+cap+'</div></div>';
   const val = (t,cap)=>'<div class="d-sig"><div class="val">'+esc(t||'')+'</div><div class="cap">'+cap+'</div></div>';
-  const out=[];
-  out.push('<div class="d-head"><img src="'+LOGO+'"><div><h1>טופס הסכמה לטיפול אורתודנטי</h1><div class="en">Orthodontic Treatment</div></div></div>');
-  out.push('<p class="d-p">'+PURPOSE+'</p>');
-  out.push('<p class="d-p">שם המתרפא/ה: '+f(d.last)+' '+f(d.first)+' &nbsp;שם האב: '+f(d.father)+' &nbsp;ת.ז.: '+f(d.id)+'</p>');
-  out.push('<p class="d-p d-b">אני מצהיר/ה ומאשר/ת בזאת שקיבלתי הסבר מפורט בעל פה מ'+esc(d.drName)+' על הטיפול האורתודנטי '+f(d.jaw)+' – בהתאם לתוכנית הטיפול המפורטת שהוצגה לי בתאריך '+f(d.planDate)+(d.planText?': '+f(d.planText):'')+' (להלן: ״הטיפול העיקרי״).</p>');
-  PARAS.forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
-  out.push('<p class="d-p d-b">'+CONSENT_LINE+'</p>');
-  let s='<div class="d-sigs">'+val(fmtDate(d.stamp),'תאריך')+sig(d.sigP, d.minor?'חתימת המתרפא/ה':'חתימת המתרפא/ה');
-  if(d.minor) s+= val(d.gName+(d.gRel?' ('+d.gRel+')':''),'שם ההורה / האפוטרופוס')+sig(d.sigG,'חתימת ההורה / האפוטרופוס')+val(d.gId,'ת.ז. ההורה / האפוטרופוס')+'<div></div>';
+  const out=[]; const he=LANG==='he';
+  out.push('<div class="d-head"><img src="'+LOGO+'"><div><h1>'+t('title')+'</h1><div class="en">'+t('subtitle')+'</div></div></div>');
+  out.push('<p class="d-p">'+PURPOSE[LANG]+'</p>');
+  out.push('<p class="d-p">'+t('patientName')+': '+f(he?d.last+' '+d.first:d.first+' '+d.last)+' &nbsp;'+t('father')+': '+f(d.father)+' &nbsp;'+t('idnum')+': '+f(d.id)+'</p>');
+  if(he) out.push('<p class="d-p d-b">אני מצהיר/ה ומאשר/ת בזאת שקיבלתי הסבר מפורט בעל פה מ'+esc(d.drName)+' על הטיפול האורתודנטי '+f(d.jaw)+' – בהתאם לתוכנית הטיפול המפורטת שהוצגה לי בתאריך '+f(d.planDate)+(d.planText?': '+f(d.planText):'')+' (להלן: ״הטיפול העיקרי״).</p>');
+  else out.push('<p class="d-p d-b">I hereby declare and confirm that I received a detailed oral explanation from '+esc(d.drName)+' about orthodontic treatment '+f(d.jaw)+', according to the detailed treatment plan presented to me on '+f(d.planDate)+(d.planText?': '+f(d.planText):'')+' (the "Main Treatment").</p>');
+  PARAS[LANG].forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
+  out.push('<p class="d-p d-b">'+CONSENT_LINE[LANG]+'</p>');
+  let s='<div class="d-sigs">'+val(fmtDate(d.stamp),t('date'))+sig(d.sigP, t('sigP'));
+  if(d.minor) s+= val(d.gName+(d.gRel?' ('+d.gRel+')':''),t('gName'))+sig(d.sigG,t('sigG'))+val(d.gId,t('gId'))+'<div></div>';
   s+='</div>'; out.push(s);
   out.push('<div class="d-sep"></div>');
-  out.push('<p class="d-p">'+DR_DECL+'</p>');
-  out.push('<p class="d-p">שם המתרגם/קרוב למתרפא/ה: '+(d.tr?f(d.trName):'לא נדרש')+'</p>');
-  out.push('<div class="d-sigs" style="grid-template-columns:1fr 1fr 1fr">'+val(d.drName,'שם הרופא/ה')+sig(d.sigD,'חתימת הרופא/ה')+val(d.drLic,'מס׳ רישיון')+'</div>');
-  out.push('<p class="d-small">הטופס נחתם בחתימה אלקטרונית על גבי טאבלט במרפאה בתאריך '+when+'.</p>');
+  out.push('<p class="d-p">'+DR_DECL[LANG]+'</p>');
+  out.push('<p class="d-p">'+t('trLine')+': '+(d.tr?f(d.trName):t('trNone'))+'</p>');
+  out.push('<div class="d-sigs" style="grid-template-columns:1fr 1fr 1fr">'+val(d.drName,t('drName'))+sig(d.sigD,t('sigD'))+val(d.drLic,t('drLic'))+'</div>');
+  out.push('<p class="d-small">'+t('eSigned')+when+'.</p>');
   return {html:out, when};
 }
 function paginate(d){
-  const stage=$('pdfStage'); stage.innerHTML='';
+  const stage=$('pdfStage'); stage.innerHTML=''; stage.dir=LANG==='he'?'rtl':'ltr';
   const {html,when}=blocks(d); const pages=[];
-  const newPage=()=>{const pg=document.createElement('div');pg.className='pg';pg.innerHTML='<div class="inner"></div><div class="foot"><span></span><span>'+esc(d.last+' '+d.first)+' · ת.ז. '+esc(d.id)+'</span></div>';stage.appendChild(pg);pages.push(pg);return pg;};
+  const newPage=()=>{const pg=document.createElement('div');pg.className='pg';pg.innerHTML='<div class="inner"></div><div class="foot"><span></span><span>'+esc(d.last+' '+d.first)+' · '+t('idnum')+' '+esc(d.id)+'</span></div>';stage.appendChild(pg);pages.push(pg);return pg;};
   let pg=newPage(); const limit=1123-56-40;
   for(const h of html){
     const tmp=document.createElement('div'); tmp.innerHTML=h; const el=tmp.firstElementChild;
     pg.querySelector('.inner').appendChild(el);
     if(pg.querySelector('.inner').offsetHeight>limit && pg.querySelector('.inner').children.length>1){ el.remove(); pg=newPage(); pg.querySelector('.inner').appendChild(el); }
   }
-  pages.forEach((p,i)=>p.querySelector('.foot span').textContent='עמוד '+(i+1)+' מתוך '+pages.length);
+  pages.forEach((p,i)=>p.querySelector('.foot span').textContent=t('page')+' '+(i+1)+' '+t('of')+' '+pages.length);
   return pages;
 }
 async function waitImgs(root){ await Promise.all([...root.querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r}))); }
@@ -847,8 +944,8 @@ async function savePdf(){
 }
 $('finishBtn').addEventListener('click', async()=>{
   const bad=validate();
-  if(bad.length){ setMsg('חסר: '+bad.map(b=>b.name).join(', '),'bad'); const t=$(bad[0].id); t.scrollIntoView({behavior:'smooth',block:'center'}); if(t.focus && t.tagName!=='CANVAS') setTimeout(()=>t.focus({preventScroll:true}),300); return; }
-  const btn=$('finishBtn'); btn.disabled=true; setMsg('מפיק PDF…');
+  if(bad.length){ setMsg(t('missing')+bad.map(b=>b.name).join(', '),'bad'); const t=$(bad[0].id); t.scrollIntoView({behavior:'smooth',block:'center'}); if(t.focus && t.tagName!=='CANVAS') setTimeout(()=>t.focus({preventScroll:true}),300); return; }
+  const btn=$('finishBtn'); btn.disabled=true; setMsg(t('making'));
   try{
     const r=await buildPdf(); lastPdf=r.blob; lastName=r.name;
     setMsg('שומר בגוגל דרייב…');
@@ -869,7 +966,7 @@ $('newBtn').addEventListener('click', ()=>{
   document.querySelectorAll('input[name=jaw]').forEach(r=>r.checked=false);
   $('sAdult').checked=true; $('trNo').checked=true; $('agree').checked=false; $('planDate').value=isoToday();
   Object.values(pads).forEach(p=>p.clear()); lastPdf=null; lastName='';
-  syncSigner(); syncTr(); setMsg('');
+  LANG='he'; $('drName').value=DR_DEFAULT.he; applyLang(); syncTr(); setMsg('');
   $('doneWrap').hidden=true; $('formWrap').hidden=false; $('footer').hidden=false; window.scrollTo(0,0);
   requestAnimationFrame(()=>Object.values(pads).forEach(p=>p.size()));
 });

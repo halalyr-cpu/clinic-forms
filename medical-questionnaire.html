@@ -13,6 +13,14 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+.setup{position:fixed;inset:0;background:rgba(20,40,44,.55);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.setup-card{background:var(--paper);color:var(--ink);border-radius:14px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;direction:rtl;text-align:right}
+.setup-card h2{margin:0;font-size:22px}
+.setup-card p{margin:0;color:var(--muted);font-size:15px}
+.setup-card input{font:inherit;font-size:20px;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;direction:ltr}
+.setup-row{display:flex;gap:10px;flex-wrap:wrap}
+.drive-ok{color:var(--ok)!important;font-weight:700}
+.drive-bad{color:var(--warn)!important;font-weight:700}
 html,body{background:var(--desk);color:var(--ink)}
 body{font-family:var(--font-ui);font-size:18px;line-height:1.55;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
@@ -118,6 +126,7 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--teal-wash);borde
     <h2 data-t="doneTitle"></h2>
     <p class="note" id="doneName"></p>
     <p class="note" data-t="doneNote"></p>
+    <p class="note" id="driveLine" dir="rtl"></p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
       <button class="btn" type="button" id="againBtn" data-t="saveAgain"></button>
       <button class="btn primary" type="button" id="newBtn" data-t="newForm"></button>
@@ -125,6 +134,14 @@ input:focus,textarea:focus,select:focus{outline:3px solid var(--teal-wash);borde
   </div>
 </div>
 
+<div id="driveSetup" class="setup" hidden>
+  <div class="setup-card" role="dialog" aria-labelledby="driveSetupTitle">
+    <h2 id="driveSetupTitle">חיבור הטאבלט לגוגל דרייב</h2>
+    <p>להזנה פעם אחת על ידי הצוות. הקוד נשמר בטאבלט הזה בלבד, ומשמש את כל הטפסים.</p>
+    <input type="password" id="driveKeyIn" autocomplete="off" placeholder="קוד חיבור">
+    <div class="setup-row"><button class="btn primary" id="driveKeySave" type="button">שמירה</button><button class="btn" id="driveKeySkip" type="button">לא עכשיו</button></div>
+  </div>
+</div>
 <div class="footer" id="footer">
   <span class="msg" id="msg"></span>
   <button class="btn primary" type="button" id="finishBtn" data-t="finish"></button>
@@ -898,6 +915,32 @@ async function buildPdf(){
   const ymd=stamp.getFullYear()+'-'+pad(stamp.getMonth()+1)+'-'+pad(stamp.getDate());
   return {blob:pdf.output('blob'),name:'שאלון רפואי - '+val('fullName')+' - '+val('idNum')+' - '+ymd+'.pdf'};
 }
+const DRIVE_URL='https://script.google.com/macros/s/AKfycbwzTBI7GEJoP3QCWeio8Ekcim2S6wMvCzyW5NE6fjiMLiXq2ClRgsC5LwwnMa-Y4qU/exec';
+const KEY_STORE='clinicDriveKey';
+function driveKey(){try{return localStorage.getItem(KEY_STORE)||''}catch(e){return ''}}
+function setDriveKey(k){try{if(k)localStorage.setItem(KEY_STORE,k);else localStorage.removeItem(KEY_STORE)}catch(e){}}
+function blobToB64(b){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(b)})}
+async function uploadDrive(blob,filename,name,id,form){
+  if(!/^https:\/\/script\.google\.com\//.test(DRIVE_URL)) return {ok:false,reason:'not_configured'};
+  if(!driveKey()) return {ok:false,reason:'no_key'};
+  try{
+    const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),45000);
+    const res=await fetch(DRIVE_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:driveKey(),name,id,form,filename,data:await blobToB64(blob)}),signal:ctl.signal});
+    clearTimeout(tm);
+    const j=await res.json();
+    if(j.ok) return {ok:true,folder:j.folder};
+    if(j.error==='bad_key') setDriveKey('');
+    return {ok:false,reason:j.error||'server'};
+  }catch(e){ return {ok:false,reason:'network'}; }
+}
+const DRIVE_REASON={no_key:'הטאבלט עדיין לא חובר לדרייב',not_configured:'החיבור לדרייב לא הוגדר',network:'אין חיבור לאינטרנט או שהשרת לא הגיב',bad_key:'קוד החיבור שגוי — יש להזין אותו מחדש',missing:'חסרים פרטים לשמירה',server:'שגיאה בשמירה בדרייב'};
+function driveStatus(up){ return up.ok ? 'נשמר בגוגל דרייב, בתיקייה: '+up.folder : 'לא נשמר בדרייב ('+(DRIVE_REASON[up.reason]||up.reason)+'). הקובץ נשמר בטאבלט — יש להעלות אותו ידנית.'; }
+(function(){
+  const box=document.getElementById('driveSetup');
+  if(!driveKey()) box.hidden=false;
+  document.getElementById('driveKeySave').addEventListener('click',()=>{const v=document.getElementById('driveKeyIn').value.trim(); if(!v) return; setDriveKey(v); document.getElementById('driveKeyIn').value=''; box.hidden=true;});
+  document.getElementById('driveKeySkip').addEventListener('click',()=>{box.hidden=true;});
+})();
 let downloads=null;
 if(window.claude&&claude.use){claude.use('downloads').then(x=>{downloads=x}).catch(()=>{});}
 async function savePdf(){
@@ -908,8 +951,11 @@ $('finishBtn').addEventListener('click',async()=>{
   const bad=validate();
   if(bad.length){setMsg(t('missing')+bad.slice(0,4).map(b=>b.name).join(', ')+(bad.length>4?' …':''),'bad');bad[0].el.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const b=$('finishBtn');b.disabled=true;setMsg(t('making'));
-  try{const r=await buildPdf();lastPdf=r.blob;lastName=r.name;const st=await savePdf();
-    if(st==='saved'){$('formWrap').hidden=true;$('footer').hidden=true;$('doneWrap').hidden=false;$('doneName').textContent=t('savedAs')+lastName;window.scrollTo(0,0);}
+  try{const r=await buildPdf();lastPdf=r.blob;lastName=r.name;
+    const up=await uploadDrive(lastPdf,lastName,val('fullName'),val('idNum'),'questionnaire');
+    const st=up.ok?'saved':await savePdf();
+    const dl=$('driveLine'); dl.textContent=driveStatus(up); dl.className='note '+(up.ok?'drive-ok':'drive-bad');
+    if(st==='saved'){$('formWrap').hidden=true;$('footer').hidden=true;$('doneWrap').hidden=false;$('doneName').textContent=up.ok?'':t('savedAs')+lastName;window.scrollTo(0,0);}
     else setMsg(t(st==='declined'?'cancelled':st==='busy'?'busy':'failed'),'bad');
   }catch(e){console.error(e);setMsg(t('failed')+' '+(e&&e.message||''),'bad');}
   b.disabled=false;

@@ -22,6 +22,14 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+.setup{position:fixed;inset:0;background:rgba(20,40,44,.55);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.setup-card{background:var(--paper);color:var(--ink);border-radius:14px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;direction:rtl;text-align:right}
+.setup-card h2{margin:0;font-size:22px}
+.setup-card p{margin:0;color:var(--muted);font-size:15px}
+.setup-card input{font:inherit;font-size:20px;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;direction:ltr}
+.setup-row{display:flex;gap:10px;flex-wrap:wrap}
+.drive-ok{color:var(--ok)!important;font-weight:700}
+.drive-bad{color:var(--warn)!important;font-weight:700}
 html,body{background:var(--desk);color:var(--ink)}
 body{font-family:var(--font-ui);font-size:18px;line-height:1.55;direction:rtl;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
@@ -182,7 +190,7 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
   <div id="done">
     <h2>הטופס נחתם ונשמר</h2>
     <p class="subtle" id="doneName"></p>
-    <p class="subtle">יש להעלות את קובץ ה-PDF לתיק המטופל באופטימה.</p>
+    <p class="subtle" id="driveLine"></p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
       <button class="btn" type="button" id="againBtn">שמירת ה-PDF שוב</button>
       <button class="btn primary" type="button" id="newBtn">טופס חדש</button>
@@ -190,6 +198,14 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
   </div>
 </div>
 
+<div id="driveSetup" class="setup" hidden>
+  <div class="setup-card" role="dialog" aria-labelledby="driveSetupTitle">
+    <h2 id="driveSetupTitle">חיבור הטאבלט לגוגל דרייב</h2>
+    <p>להזנה פעם אחת על ידי הצוות. הקוד נשמר בטאבלט הזה בלבד, ומשמש את כל הטפסים.</p>
+    <input type="password" id="driveKeyIn" autocomplete="off" placeholder="קוד חיבור">
+    <div class="setup-row"><button class="btn primary" id="driveKeySave" type="button">שמירה</button><button class="btn" id="driveKeySkip" type="button">לא עכשיו</button></div>
+  </div>
+</div>
 <div class="footer" id="footer">
   <span class="msg" id="msg"></span>
   <button class="btn primary" type="button" id="finishBtn">סיום ושמירת PDF</button>
@@ -791,6 +807,32 @@ async function buildPdf(){
   const ymd=d.stamp.getFullYear()+'-'+pad(d.stamp.getMonth()+1)+'-'+pad(d.stamp.getDate());
   return { blob:pdf.output('blob'), name:'הסכמה לטיפול - '+d.first+' '+d.last+' - '+d.id+' - '+ymd+'.pdf', who:d.first+' '+d.last };
 }
+const DRIVE_URL='https://script.google.com/macros/s/AKfycbwzTBI7GEJoP3QCWeio8Ekcim2S6wMvCzyW5NE6fjiMLiXq2ClRgsC5LwwnMa-Y4qU/exec';
+const KEY_STORE='clinicDriveKey';
+function driveKey(){try{return localStorage.getItem(KEY_STORE)||''}catch(e){return ''}}
+function setDriveKey(k){try{if(k)localStorage.setItem(KEY_STORE,k);else localStorage.removeItem(KEY_STORE)}catch(e){}}
+function blobToB64(b){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(b)})}
+async function uploadDrive(blob,filename,name,id,form){
+  if(!/^https:\/\/script\.google\.com\//.test(DRIVE_URL)) return {ok:false,reason:'not_configured'};
+  if(!driveKey()) return {ok:false,reason:'no_key'};
+  try{
+    const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),45000);
+    const res=await fetch(DRIVE_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:driveKey(),name,id,form,filename,data:await blobToB64(blob)}),signal:ctl.signal});
+    clearTimeout(tm);
+    const j=await res.json();
+    if(j.ok) return {ok:true,folder:j.folder};
+    if(j.error==='bad_key') setDriveKey('');
+    return {ok:false,reason:j.error||'server'};
+  }catch(e){ return {ok:false,reason:'network'}; }
+}
+const DRIVE_REASON={no_key:'הטאבלט עדיין לא חובר לדרייב',not_configured:'החיבור לדרייב לא הוגדר',network:'אין חיבור לאינטרנט או שהשרת לא הגיב',bad_key:'קוד החיבור שגוי — יש להזין אותו מחדש',missing:'חסרים פרטים לשמירה',server:'שגיאה בשמירה בדרייב'};
+function driveStatus(up){ return up.ok ? 'נשמר בגוגל דרייב, בתיקייה: '+up.folder : 'לא נשמר בדרייב ('+(DRIVE_REASON[up.reason]||up.reason)+'). הקובץ נשמר בטאבלט — יש להעלות אותו ידנית.'; }
+(function(){
+  const box=document.getElementById('driveSetup');
+  if(!driveKey()) box.hidden=false;
+  document.getElementById('driveKeySave').addEventListener('click',()=>{const v=document.getElementById('driveKeyIn').value.trim(); if(!v) return; setDriveKey(v); document.getElementById('driveKeyIn').value=''; box.hidden=true;});
+  document.getElementById('driveKeySkip').addEventListener('click',()=>{box.hidden=true;});
+})();
 let downloads=null;
 if(window.claude && claude.use){ claude.use('downloads').then(x=>{downloads=x}).catch(()=>{}); }
 async function savePdf(){
@@ -809,15 +851,18 @@ $('finishBtn').addEventListener('click', async()=>{
   const btn=$('finishBtn'); btn.disabled=true; setMsg('מפיק PDF…');
   try{
     const r=await buildPdf(); lastPdf=r.blob; lastName=r.name;
+    setMsg('שומר בגוגל דרייב…');
+    const up=await uploadDrive(lastPdf,lastName,r.who,$('pId').value.trim(),'consent');
+    if(up.ok){ showDone(r.who,up); btn.disabled=false; return; }
     const st=await savePdf();
-    if(st==='saved'){ showDone(r.who); }
+    if(st==='saved'){ showDone(r.who,up); }
     else if(st==='declined'){ setMsg('השמירה בוטלה. אפשר ללחוץ שוב לשמירה.','bad'); }
     else if(st==='busy'){ setMsg('חלון שמירה כבר פתוח. נסו שוב בעוד רגע.','bad'); }
     else setMsg('השמירה נכשלה בדפדפן הזה.','bad');
   }catch(e){ console.error(e); setMsg('הפקת ה-PDF נכשלה: '+(e&&e.message||e),'bad'); }
   btn.disabled=false;
 });
-function showDone(who){ $('formWrap').hidden=true; $('footer').hidden=true; $('doneWrap').hidden=false; $('doneName').textContent='הקובץ נשמר בשם: '+lastName; window.scrollTo(0,0); }
+function showDone(who,up){ const dl=$('driveLine'); dl.textContent=driveStatus(up); dl.className='subtle '+(up.ok?'drive-ok':'drive-bad'); $('formWrap').hidden=true; $('footer').hidden=true; $('doneWrap').hidden=false; $('doneName').textContent=(up.ok?'שם הקובץ: ':'הקובץ נשמר בטאבלט בשם: ')+lastName; window.scrollTo(0,0); }
 $('againBtn').addEventListener('click', async()=>{ const st=await savePdf(); $('doneName').textContent = st==='saved' ? 'הקובץ נשמר שוב: '+lastName : 'השמירה לא הושלמה. נסו שוב.'; });
 $('newBtn').addEventListener('click', ()=>{
   document.querySelectorAll('#formWrap input[type=text], #formWrap input[type=tel], #formWrap textarea').forEach(i=>{ if(i.id!=='drName' && i.id!=='drLic') i.value=''; });

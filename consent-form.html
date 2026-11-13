@@ -164,12 +164,8 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
   <section class="card">
     <div class="sec-head"><span class="num">3</span><h2 data-t="s3"></h2><span class="who" data-t="forPatient"></span></div>
     <div class="consent" id="consentText"></div>
+    <div class="consent" id="plus7Box" hidden><p><b data-t="p7Title"></b></p><p data-t="p7Text"></p></div>
     <label class="check"><input type="checkbox" id="agree"><span data-t="agree"></span></label>
-    <div class="plus7" id="plus7Box" hidden>
-      <h3 data-t="p7Title"></h3>
-      <p data-t="p7Text"></p>
-      <label class="check" id="p7Box"><input type="checkbox" id="p7Agree"><span data-t="p7Agree"></span></label>
-    </div>
   </section>
 
   <section class="card" id="photoCard">
@@ -877,7 +873,6 @@ function validate(){
   need('pId', validIL(v('pId')), t('vId'));
   if(!document.querySelector('input[name=jaw]:checked')){ bad.push({id:'jUp',name:t('vJaw')}); }
   need('planDate', v('planDate'), t('planDate'));
-  if($('fLeumit').checked && !$('p7Agree').checked){ $('p7Box').classList.add('invalid'); bad.push({id:'p7Box',name:t('vP7')}); }
   const pt=document.querySelector('input[name=phTeach]:checked'), pw=document.querySelector('input[name=phWeb]:checked');
   if(!pt) $('phTeachBox').classList.add('invalid'); if(!pw) $('phWebBox').classList.add('invalid');
   if(!pt||!pw) bad.push({id:!pt?'phTeachBox':'phWebBox',name:t('vPhoto')});
@@ -917,8 +912,8 @@ function blocks(d){
   if(he) out.push('<p class="d-p d-b">אני מצהיר/ה ומאשר/ת בזאת שקיבלתי הסבר מפורט בעל פה מ'+esc(d.drName)+' על הטיפול האורתודנטי '+f(d.jaw)+' – בהתאם לתוכנית הטיפול המפורטת שהוצגה לי בתאריך '+f(d.planDate)+(d.planText?': '+f(d.planText):'')+' (להלן: ״הטיפול העיקרי״).</p>');
   else out.push('<p class="d-p d-b">I hereby declare and confirm that I received a detailed oral explanation from '+esc(d.drName)+' about orthodontic treatment '+f(d.jaw)+', according to the detailed treatment plan presented to me on '+f(d.planDate)+(d.planText?': '+f(d.planText):'')+' (the "Main Treatment").</p>');
   PARAS[LANG].forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
+  if($('fLeumit').checked) out.push('<p class="d-p"><b>'+t('p7Title')+'.</b> '+t('p7Text')+'</p>');
   out.push('<p class="d-p d-b">'+CONSENT_LINE[LANG]+'</p>');
-  if($('fLeumit').checked) out.push('<div class="d-box"><b>'+t('p7Title')+'</b><br>'+t('p7Text')+'<br><b>✓ '+t('p7Agree')+'</b></div>');
   { const pt=document.querySelector('input[name=phTeach]:checked').value, pw=document.querySelector('input[name=phWeb]:checked').value;
     out.push('<div class="d-box"><b>'+t('sPhoto')+'</b><br>'+t('phIntro')+'<br>• '+t('phTeach')+' <b>'+t(pt==='yes'?'agreeShort':'disagreeShort')+'</b><br>• '+t('phWeb')+' <b>'+t({no:'phWebNo',teeth:'phWebTeeth',face:'phWebFace'}[pw])+'</b><br><span class="d-small">'+t('phNote')+'</span></div>'); }
   let s='<div class="d-sigs">'+val(fmtDate(d.stamp),t('date'))+sig(d.sigP, t('sigP'));
@@ -1025,7 +1020,7 @@ $('againBtn').addEventListener('click', async()=>{ const st=await savePdf(); $('
 $('newBtn').addEventListener('click', ()=>{
   document.querySelectorAll('#formWrap input[type=text], #formWrap input[type=tel], #formWrap textarea').forEach(i=>{ if(i.id!=='drName' && i.id!=='drLic') i.value=''; });
   document.querySelectorAll('input[name=jaw]').forEach(r=>r.checked=false);
-  $('sAdult').checked=true; $('trNo').checked=true; $('agree').checked=false; $('fPrivate').checked=true; $('p7Agree').checked=false; document.querySelectorAll('input[name=phTeach],input[name=phWeb]').forEach(r=>r.checked=false); syncFund(); $('planDate').value=isoToday();
+  $('sAdult').checked=true; $('trNo').checked=true; $('agree').checked=false; $('fPrivate').checked=true; document.querySelectorAll('input[name=phTeach],input[name=phWeb]').forEach(r=>r.checked=false); syncFund(); $('planDate').value=isoToday();
   Object.values(pads).forEach(p=>p.clear()); lastPdf=null; lastName='';
   LANG='he'; $('drName').value=DR_DEFAULT.he; applyLang(); syncTr(); setMsg('');
   $('doneWrap').hidden=true; $('formWrap').hidden=false; $('footer').hidden=false; window.scrollTo(0,0);

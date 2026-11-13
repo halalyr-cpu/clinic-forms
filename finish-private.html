@@ -124,15 +124,17 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
 .d-ret{border:1.5px solid #3f8e98;border-radius:6px;padding:8px 12px;font-size:14px}
 .rtable{display:flex;flex-direction:column;gap:8px}
 .rh{display:none}
-.rr{display:grid;grid-template-columns:1fr auto auto 120px;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#fbfdfd}
+.rr{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#fbfdfd}
 .rr .rn{font-weight:700;min-width:0}
 .tg{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-size:15px;font-weight:700;cursor:pointer;background:var(--paper);white-space:nowrap}
 .tg input{width:20px;height:20px;accent-color:var(--teal-deep)}
 .tg.rec:has(input:checked){border-color:#8a6d1f;background:#fbf3dc;color:#6b5414}
 .tg.cho:has(input:checked){border-color:var(--teal);background:var(--teal-wash);color:var(--teal-deep)}
-.rr select{font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:8px;background:var(--paper);color:var(--ink);min-width:0}
-.rr select:disabled{opacity:.4}
-@media (max-width:640px){.rr{grid-template-columns:1fr 1fr}.rr .rn{grid-column:1/-1}}
+.jaws{display:flex;gap:6px;flex-wrap:wrap}
+.jw{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-size:15px;font-weight:700;cursor:pointer;background:var(--paper);white-space:nowrap}
+.jw input{width:20px;height:20px;accent-color:var(--teal-deep)}
+.jw:has(input:checked){border-color:var(--teal);background:var(--teal-wash);color:var(--teal-deep)}
+@media (max-width:760px){.rr{grid-template-columns:auto auto 1fr}.rr .rn{grid-column:1/-1}}
 .declined{border:2px solid var(--warn);background:#fbefeb;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .declined p{margin:0;font-weight:700;color:#7a2e1c}
 .declined .check{background:var(--paper)}
@@ -738,7 +740,7 @@ const T={
  rFixed:{he:'קיבוע קבוע (חוט מודבק מאחורי השיניים)',en:'Fixed retainer (wire bonded behind the teeth)'},
  rClear:{he:'קיבוע נשלף שקוף (Essix / OmniVac)',en:'Clear removable retainer (Essix / OmniVac)'},
  rHawley:{he:'פלטה משמרת מסוג Hawley',en:'Hawley retainer'},
- jUp:{he:'עליונה',en:'Upper'}, jDown:{he:'תחתונה',en:'Lower'}, jBoth:{he:'שתיהן',en:'Both'},
+ jUp:{he:'עליונה',en:'Upper'}, jDown:{he:'תחתונה',en:'Lower'}, jBoth:{he:'שתיהן',en:'Both'}, jUpL:{he:'לסת עליונה',en:'Upper jaw'}, jDownL:{he:'לסת תחתונה',en:'Lower jaw'},
  recShort:{he:'מומלץ',en:'Recommended'}, choseShort:{he:'בוחר/ת',en:'I choose'},
  wear:{he:'הוראות שימוש באמצעי הקיבוע (למשל: נשלף – כל לילה, ללא הגבלת זמן)',en:'Retainer instructions (e.g. removable – every night, with no end date)'},
  declIntro:{he:'בחרתי שלא לבצע את אמצעי הקיבוע הבאים, למרות שהרופא/ה המליץ/ה עליהם: ',en:'I chose not to have the following retainers, although the doctor recommended them: '},
@@ -827,15 +829,15 @@ function isMinor(){return $('sMinor').checked}
    RETS.map(([k,lab])=>'<div class="rr" id="row_'+k+'"><span class="rn" data-t="'+lab+'"></span>'+
     '<label class="tg rec"><input type="checkbox" id="rec_'+k+'"><span data-t="recShort"></span></label>'+
     '<label class="tg cho"><input type="checkbox" id="cho_'+k+'"><span data-t="choseShort"></span></label>'+
-    '<select id="jaw_'+k+'"><option value=""></option><option value="up" data-t="jUp"></option><option value="down" data-t="jDown"></option><option value="both" data-t="jBoth"></option></select></div>').join('');
+    '<span class="jaws"><label class="jw"><input type="checkbox" id="up_'+k+'"><span data-t="jUpL"></span></label><label class="jw"><input type="checkbox" id="dn_'+k+'"><span data-t="jDownL"></span></label></span></div>').join('');
 })();
-function retState(){return RETS.map(([k,lab])=>({k,lab,rec:$('rec_'+k).checked,cho:$('cho_'+k).checked,jaw:$('jaw_'+k).value}));}
+function retState(){return RETS.map(([k,lab])=>({k,lab,rec:$('rec_'+k).checked,cho:$('cho_'+k).checked,up:$('up_'+k).checked,dn:$('dn_'+k).checked}));}
 function syncRet(){
   const st=retState(); const declined=st.filter(r=>r.rec&&!r.cho);
   $('declinedBox').hidden=!declined.length;
   $('declinedText').textContent=declined.length?t('declIntro')+declined.map(r=>t(r.lab)).join(', ')+t('declTail'):'';
   if(!declined.length) $('declAck').checked=false;
-  st.forEach(r=>{$('jaw_'+r.k).disabled=!(r.rec||r.cho);});
+
 }
 $('rtable').addEventListener('change',syncRet);
 function syncSigner(){ const m=isMinor(); $('guardianFields').hidden=!m; $('sigPatientLbl').textContent=m?t('sigG'):t('sigP'); }
@@ -918,7 +920,7 @@ function validate(){
   const st=retState();
   need('rtable',st.some(r=>r.rec),t('vRec'));
   need('rtable',st.some(r=>r.cho)||st.some(r=>r.rec&&!r.cho),t('vChose'));
-  need('rtable',st.every(r=>!(r.rec||r.cho)||r.jaw),t('vJaw'));
+  need('rtable',st.every(r=>!(r.rec||r.cho)||r.up||r.dn),t('vJaw'));
   if(!$('declinedBox').hidden) need('declinedBox',$('declAck').checked,t('vDecl'));
   if(st.some(r=>r.cho)){ const p=document.querySelector('input[name=pay]:checked'); need('payBox',p&&(p.value==='incl'||v('payAmt')),t('vPay')); }
   need('agreeBox',$('agree').checked,t('vAgree'));
@@ -936,7 +938,7 @@ function blocks(stamp){
   const val=(x,cap)=>'<div class="d-sig"><div class="val">'+esc(x||'')+'</div><div class="cap">'+cap+'</div></div>';
   const yn=b=>b?'✓ '+t('yes'):'✗ '+t('no');
   const signer=isMinor()?v('gName')+(v('gRel')?' ('+v('gRel')+')':''):v('pName');
-  const st=retState(); const jawT=j=>j?t({up:'jUp',down:'jDown',both:'jBoth'}[j]):'—';
+  const st=retState(); const jawT=r=>r.up&&r.dn?t('jUp')+' + '+t('jDown'):r.up?t('jUp'):r.dn?t('jDown'):'—';
   const out=[];
   out.push('<div class="d-head"><img src="'+LOGO+'"><div><h1>'+t('title')+'</h1><div class="en">'+t('subtitle')+' · '+t(TT()==='a'?'tAligners':'tBraces')+'</div></div></div>');
   out.push('<div class="d-sec">'+t('s1')+'</div>');
@@ -948,7 +950,7 @@ function blocks(stamp){
   out.push('<div class="d-ret"><b>✓ '+t('satYes')+'</b></div>');
   out.push('<div class="d-sec">'+t('s4')+'</div>');
   out.push('<table class="d-tbl"><tr><th>'+t('colType')+'</th><th>'+t('colRec')+'</th><th>'+t('colChose')+'</th><th>'+t('colJaw')+'</th></tr>'+
-    st.map(r=>'<tr><td>'+t(r.lab)+'</td><td>'+(r.rec?'✓':'—')+'</td><td>'+(r.cho?'✓':'—')+'</td><td>'+jawT(r.jaw)+'</td></tr>').join('')+'</table>');
+    st.map(r=>'<tr><td>'+t(r.lab)+'</td><td>'+(r.rec?'✓':'—')+'</td><td>'+(r.cho?'✓':'—')+'</td><td>'+jawT(r)+'</td></tr>').join('')+'</table>');
   if(v('wear')) out.push('<div class="d-list">'+row(t('wear'),v('wear'))+'</div>');
   if(!$('declinedBox').hidden) out.push('<div class="d-ret d-warn"><b>'+esc($('declinedText').textContent)+'</b> ✓ '+t('declAck')+'</div>');
   const p=document.querySelector('input[name=pay]:checked');

@@ -108,15 +108,20 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
 .congrats{background:var(--teal-deep);color:#fff;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:4px}
 .congrats strong{font-size:22px}
 .opts{display:flex;flex-direction:column;gap:10px}
-.opt{display:grid;grid-template-columns:1fr auto;gap:2px 12px;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;background:#fbfdfd}
-.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt{border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;background:#fbfdfd;display:flex;flex-direction:column;gap:10px}
+.omain{display:grid;grid-template-columns:1fr auto;gap:2px 12px;cursor:pointer}
+.jaws{display:flex;gap:8px;flex-wrap:wrap}
+.jw{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:700;font-size:15px;cursor:pointer;background:var(--paper)}
+.jw input{width:20px;height:20px;accent-color:var(--teal-deep)}
+.jw:has(input:checked){border-color:var(--teal);background:var(--teal-wash);color:var(--teal-deep)}
+.omain input{position:absolute;opacity:0;pointer-events:none}
 .opt .ot{font-weight:800;font-size:19px}
 .opt .od{grid-column:1;font-size:15px;color:var(--muted)}
 .opt .tag{grid-column:2;grid-row:1/span 2;align-self:center;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
 .tag.ok{background:#e3f2e8;color:var(--ok)}
 .tag.priv{background:#f8e7e2;color:var(--warn)}
-.opt:has(input:checked){border-color:var(--teal);background:var(--teal-wash);box-shadow:0 0 0 2px var(--teal) inset}
-.opt:has(input:focus-visible){outline:3px solid var(--teal)}
+.opt:has(.omain input:checked){border-color:var(--teal);background:var(--teal-wash);box-shadow:0 0 0 2px var(--teal) inset}
+.omain:has(input:focus-visible){outline:3px solid var(--teal)}
 #retCard.invalid,.check.invalid{outline:2px solid var(--warn)}
 .d-sec{font-weight:bold;font-size:14.5px;color:#2b6c75;border-bottom:1px solid #cfdbdd;padding-bottom:2px;margin-top:6px}
 .d-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
@@ -169,9 +174,9 @@ input:focus,textarea:focus{outline:3px solid var(--teal-wash);border-color:var(-
     <div class="sec-head"><span class="num">3</span><h2 data-t="s3"></h2></div>
     <p class="subtle" data-t="retIntro"></p>
     <div class="opts" role="group">
-      <label class="opt"><input type="checkbox" name="ret" id="retFixed" value="fixed"><span class="ot" data-t="r1t"></span><span class="od" data-t="r1d"></span><span class="tag ok" data-t="covered"></span></label>
-      <label class="opt"><input type="checkbox" name="ret" id="retClear" value="clear"><span class="ot" data-t="r2t"></span><span class="od" data-t="r2d"></span><span class="tag ok" data-t="covered"></span></label>
-      <label class="opt"><input type="checkbox" name="ret" id="retHawley" value="hawley"><span class="ot" data-t="r3t"></span><span class="od" data-t="r3d"></span><span class="tag priv" data-t="private"></span></label>
+      <div class="opt" id="opt_fixed"><label class="omain"><input type="checkbox" name="ret" id="retFixed" value="fixed"><span class="ot" data-t="r1t"></span><span class="od" data-t="r1d"></span><span class="tag ok" data-t="covered"></span></label><div class="jaws"><label class="jw"><input type="checkbox" id="up_fixed"><span data-t="jUp"></span></label><label class="jw"><input type="checkbox" id="dn_fixed"><span data-t="jDown"></span></label></div></div>
+      <div class="opt" id="opt_clear"><label class="omain"><input type="checkbox" name="ret" id="retClear" value="clear"><span class="ot" data-t="r2t"></span><span class="od" data-t="r2d"></span><span class="tag ok" data-t="covered"></span></label><div class="jaws"><label class="jw"><input type="checkbox" id="up_clear"><span data-t="jUp"></span></label><label class="jw"><input type="checkbox" id="dn_clear"><span data-t="jDown"></span></label></div></div>
+      <div class="opt" id="opt_hawley"><label class="omain"><input type="checkbox" name="ret" id="retHawley" value="hawley"><span class="ot" data-t="r3t"></span><span class="od" data-t="r3d"></span><span class="tag priv" data-t="private"></span></label><div class="jaws"><label class="jw"><input type="checkbox" id="up_hawley"><span data-t="jUp"></span></label><label class="jw"><input type="checkbox" id="dn_hawley"><span data-t="jDown"></span></label></div></div>
     </div>
   </section>
 
@@ -679,6 +684,7 @@ const T={
  r2d:{he:'מופיע במחירון לאומית כמכשיר נשלף שקוף. החיוב מתבצע דרך לאומית בהתאם לזכאות.',en:"Listed in Leumit's price list as a clear removable appliance. Charged through Leumit according to eligibility."},
  r3t:{he:'פלטה משמרת מסוג Hawley',en:'Hawley retainer'},
  r3d:{he:'במידה ותבחרו במכשיר זה, יש להסדיר את התשלום באופן פרטי מול המרפאה.',en:'If you choose this appliance, payment is arranged privately with the clinic.'},
+ jUp:{he:'לסת עליונה',en:'Upper jaw'}, jDown:{he:'לסת תחתונה',en:'Lower jaw'}, vJaw:{he:'בחירת לסת לכל אמצעי קיבוע',en:'jaw for each retainer'},
  covered:{he:'מכוסה במסגרת לאומית',en:'Covered by Leumit'},
  private:{he:'אינה מכוסה על ידי לאומית',en:'Not covered by Leumit'},
  retChosen:{he:'אמצעי הקיבוע שנבחרו',en:'Retainers chosen'},
@@ -743,6 +749,12 @@ document.querySelectorAll('input[name=signer]').forEach(r=>r.addEventListener('c
 $('pId').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'')});
 $('pRemoval').value=isoToday();
 applyLang();
+['fixed','clear','hawley'].forEach(v=>{
+  const main=document.querySelector('input[name=ret][value='+v+']');
+  ['up_','dn_'].forEach(p=>$(p+v).addEventListener('change',e=>{ if(e.target.checked) main.checked=true; }));
+  main.addEventListener('change',()=>{ if(!main.checked){ $('up_'+v).checked=false; $('dn_'+v).checked=false; } });
+});
+function jawsOf(v){ const u=$('up_'+v).checked, d=$('dn_'+v).checked; return u&&d?t('jUp')+' + '+t('jDown'):u?t('jUp'):d?t('jDown'):''; }
 
 const pads = {};
 function makePad(id){
@@ -793,6 +805,7 @@ function validate(){
   need('pRemoval',v('pRemoval'),t('removal'));
   if(isMinor()) need('gName',v('gName'),t('gName'));
   need('retCard',!!document.querySelector('input[name=ret]:checked'),t('vRet'));
+  need('retCard',[...document.querySelectorAll('input[name=ret]:checked')].every(i=>jawsOf(i.value)),t('vJaw'));
   need('agreeBox',$('agree').checked,t('vAgree'));
   need('sigPatientBox',!pads.sigPatient.empty,isMinor()?t('sigG'):t('sigP'));
   need('drName',v('drName'),t('drName'));
@@ -806,7 +819,7 @@ function blocks(stamp){
   const row=(k,val)=>'<div class="d-kv"><span>'+k+'</span><b>'+esc(val||'—')+'</b></div>';
   const sig=(img,cap)=>'<div class="d-sig"><div class="box">'+(img?'<img src="'+img+'">':'')+'</div><div class="cap">'+cap+'</div></div>';
   const val=(x,cap)=>'<div class="d-sig"><div class="val">'+esc(x||'')+'</div><div class="cap">'+cap+'</div></div>';
-  const rets=[...document.querySelectorAll('input[name=ret]:checked')].map(i=>RET[i.value]);
+  const rets=[...document.querySelectorAll('input[name=ret]:checked')].map(i=>RET[i.value].concat([jawsOf(i.value)]));
   const signer=isMinor()?v('gName')+(v('gRel')?' ('+v('gRel')+')':''):v('pName');
   const out=[];
   out.push('<div class="d-head"><img src="'+LOGO+'"><div><h1>'+t('title')+'</h1><div class="en">'+t('subtitle')+'</div></div></div>');
@@ -815,7 +828,7 @@ function blocks(stamp){
   out.push('<div class="d-sec">'+t('s2')+'</div>');
   FINISH[LANG].forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
   out.push('<div class="d-sec">'+t('s3')+'</div>');
-  out.push('<div class="d-ret"><b>'+t('retChosen')+':</b>'+rets.map(r=>'<div>✓ <b>'+t(r[0])+'</b> — '+t(r[1])+'</div>').join('')+'</div>');
+  out.push('<div class="d-ret"><b>'+t('retChosen')+':</b>'+rets.map(r=>'<div>✓ <b>'+t(r[0])+'</b> ('+r[2]+') — '+t(r[1])+'</div>').join('')+'</div>');
   out.push('<div class="d-sec">'+t('s4')+'</div>');
   WAIVER[LANG].forEach(p=>out.push('<p class="d-p">'+p+'</p>'));
   out.push('<div class="d-sigs">'+val(fmtDate(stamp),t('date'))+val(signer,isMinor()?t('gName'):t('fullName'))+sig(pads.sigPatient.png(),isMinor()?t('sigG'):t('sigP'))+'</div>');
@@ -903,7 +916,7 @@ $('finishBtn').addEventListener('click',async()=>{
 $('againBtn').addEventListener('click',async()=>{const st=await savePdf();$('doneName').textContent=st==='saved'?'הקובץ נשמר בטאבלט: '+lastName:'השמירה לא הושלמה.';});
 $('newBtn').addEventListener('click',()=>{
   ['pName','pId','pDob','gName','gRel'].forEach(id=>$(id).value='');
-  document.querySelectorAll('input[name=ret]').forEach(r=>r.checked=false);
+  document.querySelectorAll('input[name=ret],.jw input').forEach(r=>r.checked=false);
   $('sAdult').checked=true;$('agree').checked=false;$('pRemoval').value=isoToday();
   Object.values(pads).forEach(p=>p.clear());lastPdf=null;lastName='';
   LANG='he';$('drName').value=DR_DEFAULT.he;applyLang();
